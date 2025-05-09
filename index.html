@@ -217,35 +217,32 @@
         $("#loading").show();
         $("#result, #copyButton").hide();
 
-        $.ajax({
-            url: `proxy.php?num=${number}`,
-            type: "GET",
-            success: function(response) {
-                $("#loading").hide();
-                try {
-                    let data = typeof response === "string" ? JSON.parse(response) : response;
-                    if (Array.isArray(data) && data.length > 0) {
-                        let info = data[0];
-                        $("#mobile").text(info['Mobile #'] || "N/A");
-                        $("#name").text(info['Name'] || "N/A");
-                        $("#cnic").text(info['CNIC'] || "N/A");
-                        $("#address").text(info['Address'] || "N/A");
-                        $("#operator").text(info['Operator'] || "N/A");
-                        $("#result, #copyButton").fadeIn();
-                        addToHistory(number);
-                    } else {
-                        alert("No details found!");
-                    }
-                } catch (e) {
-                    alert("Invalid response received!");
-                    console.error("Parsing error:", e);
+        let apiURL = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://fam-official.serv00.net/sim/api.php?num=${number}`)}`;
+
+        $.get(apiURL, function(response) {
+            $("#loading").hide();
+            try {
+                let parsed = JSON.parse(response.contents);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    let info = parsed[0];
+                    $("#mobile").text(info['Mobile #'] || "N/A");
+                    $("#name").text(info['Name'] || "N/A");
+                    $("#cnic").text(info['CNIC'] || "N/A");
+                    $("#address").text(info['Address'] || "N/A");
+                    $("#operator").text(info['Operator'] || "N/A");
+                    $("#result, #copyButton").fadeIn();
+                    addToHistory(number);
+                } else {
+                    alert("No details found!");
                 }
-            },
-            error: function(xhr, status, error) {
-                $("#loading").hide();
-                alert("Error fetching details. Please try again.");
-                console.error("AJAX error:", status, error);
+            } catch (e) {
+                alert("Invalid response received!");
+                console.error("Parsing error:", e);
             }
+        }).fail(function(xhr, status, error) {
+            $("#loading").hide();
+            alert("Error fetching details. Please try again.");
+            console.error("AJAX error:", status, error);
         });
     });
 
@@ -267,6 +264,7 @@
         $("#searchHistory").empty();
     });
 </script>
+
 
 
 </body>
