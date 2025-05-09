@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RDX Huzifa - Search SIM Details</title>
+    <!-- External Libraries -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <style>
+        /* Smooth Transition for Everything */
+        * { transition: all 0.3s ease; }
+
+        /* Body */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(145deg, #1a1a1a, #333333);
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            color: white;
+        }
+        .dark-mode { background: linear-gradient(145deg, #000000, #222222); }
+
+        /* Dark Mode Button (Top Right) */
+        .btn-dark-mode {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
+        }
+        .btn-dark-mode:hover { transform: scale(1.2); }
+
+        /* Cover Photo */
+        .cover-photo {
+            width: 100%;
+            height: 200px;
+            background: url('https://files.catbox.moe/3rn9a2.jpg') no-repeat center center;
+            background-size: cover;
+        }
+
+        /* Profile Icon (Centered) */
+        .profile-icon-container {
+            display: flex;
+            justify-content: center;
+            margin-top: -50px;
+        }
+        .profile-icon {
+            width: 100px;
+            height: 100px;
+            background: url('https://files.catbox.moe/ak38r9.jpg') no-repeat center center;
+            background-size: cover;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+        }
+
+        /* Input */
+        .form-control {
+            font-size: 18px;
+            padding: 12px;
+            border-radius: 50px;
+            border: 2px solid cyan;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(145deg, cyan, blue);
+            padding: 14px;
+            font-size: 18px;
+            width: 100%;
+            border-radius: 50px;
+            border: none;
+        }
+        .btn-primary:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 15px blue;
+        }
+
+        /* Loading Animation */
+        #loading {
+            display: none;
+            font-size: 18px;
+            color: cyan;
+            margin-top: 10px;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Result Box */
+        #result {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+            text-align: left;
+        }
+        #result p {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+        #result i { color: cyan; margin-right: 8px; }
+
+        /* Copy Button (Hidden by Default) */
+        #copyButton {
+            display: none;
+            margin-top: 10px;
+        }
+        #copyButton:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 10px yellow;
+        }
+
+        /* WhatsApp Buttons (Single Line) */
+        .whatsapp-buttons a {
+            display: inline-block;
+            margin: 5px;
+            width: 30%;
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- Dark Mode Button -->
+<button class="btn-dark-mode" id="toggleMode">🌙</button>
+
+<!-- Cover Photo -->
+<div class="cover-photo"></div>
+
+<!-- Profile Icon -->
+<div class="profile-icon-container">
+    <div class="profile-icon"></div>
+</div>
+
+<!-- Main Container -->
+<div class="container">
+    <h2><i class="fas fa-search"></i> Search SIM Details</h2>
+    <input type="text" id="mobileNumber" class="form-control" placeholder="Enter Mobile Number">
+    <button class="btn-primary" id="fetchDetails"><i class="fas fa-search"></i> Get Details</button>
+
+    <div id="loading">⏳ Fetching details...</div>
+
+    <div id="result">
+        <p><i class="fas fa-phone"></i> <strong>Mobile:</strong> <span id="mobile">N/A</span></p>
+        <p><i class="fas fa-user"></i> <strong>Name:</strong> <span id="name">N/A</span></p>
+        <p><i class="fas fa-id-card"></i> <strong>CNIC:</strong> <span id="cnic">N/A</span></p>
+        <p><i class="fas fa-map-marker-alt"></i> <strong>Address:</strong> <span id="address">N/A</span></p>
+        <p><i class="fas fa-signal"></i> <strong>Operator:</strong> <span id="operator">N/A</span></p>
+    </div>
+
+    <!-- Copy Button -->
+    <button class="btn btn-warning" id="copyButton"><i class="fas fa-copy"></i> Copy All Data</button>
+</div>
+
+<!-- WhatsApp Buttons Section -->
+<div class="container mt-4 whatsapp-buttons">
+    <a href="https://whatsapp.com/channel/0029VasNvD33mFXwqrkFzZ3u" target="_blank" class="btn btn-success">
+        <i class="fab fa-whatsapp"></i> Join Channel
+    </a>
+    <a href="https://wa.me/+923462054847" target="_blank" class="btn btn-primary">
+        <i class="fab fa-whatsapp"></i> Contact
+    </a>
+    <a href="https://pksmmagency.com" target="_blank" class="btn btn-warning">
+        <i class="fas fa-globe"></i> SMM Panel
+    </a>
+</div>
+
+<!-- Search History Section (Fixed at Bottom) -->
+<div class="container mt-4" style="position: fixed; bottom: 9px; width: 100%; z-index: 9;">
+    <h3><i class="fas fa-history"></i> Search History</h3>
+    <ul id="searchHistory" class="list-group"></ul>
+    <button id="clearHistory" class="btn btn-danger w-100 mt-3"><i class="fas fa-trash"></i> Clear History</button>
+</div>
+
+<script>
+    // Dark Mode Toggle
+    document.getElementById("toggleMode").addEventListener("click", function() {
+        document.body.classList.toggle("dark-mode");
+        this.textContent = document.body.classList.contains("dark-mode") ? "☀️" : "🌙";
+    });
+
+    // Fetch SIM Details
+    $("#fetchDetails").click(function() {
+        let number = $("#mobileNumber").val().trim();
+        if (!number) {
+            alert("Please enter a mobile number!");
+            return;
+        }
+
+        $("#loading").show();
+        $("#result, #copyButton").hide();
+
+        $.ajax({
+            url: `proxy.php?num=${number}`,
+            type: "GET",
+            success: function(response) {
+                $("#loading").hide();
+                try {
+                    let data = typeof response === "string" ? JSON.parse(response) : response;
+                    if (Array.isArray(data) && data.length > 0) {
+                        let info = data[0];
+                        $("#mobile").text(info['Mobile #'] || "N/A");
+                        $("#name").text(info['Name'] || "N/A");
+                        $("#cnic").text(info['CNIC'] || "N/A");
+                        $("#address").text(info['Address'] || "N/A");
+                        $("#operator").text(info['Operator'] || "N/A");
+                        $("#result, #copyButton").fadeIn();
+                        addToHistory(number);
+                    } else {
+                        alert("No details found!");
+                    }
+                } catch (e) {
+                    alert("Invalid response received!");
+                    console.error("Parsing error:", e);
+                }
+            },
+            error: function(xhr, status, error) {
+                $("#loading").hide();
+                alert("Error fetching details. Please try again.");
+                console.error("AJAX error:", status, error);
+            }
+        });
+    });
+
+    // Copy Data
+    $("#copyButton").click(function() {
+        let text = $("#result").text().trim();
+        navigator.clipboard.writeText(text);
+        alert("✅ Data Copied Successfully!");
+    });
+
+    // Add to Search History
+    function addToHistory(number) {
+        let li = $("<li>").addClass("list-group-item").text(number);
+        $("#searchHistory").prepend(li);
+    }
+
+    // Clear History
+    $("#clearHistory").click(function() {
+        $("#searchHistory").empty();
+    });
+</script>
+
+
+</body>
+</html>
